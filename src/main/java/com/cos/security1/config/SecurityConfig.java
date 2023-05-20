@@ -28,11 +28,15 @@ public class SecurityConfig {
                 // 인증 & 권한 필요
                 .antMatchers("/manager/**").access("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
                 .antMatchers("/admin/**").access("hasRole('ROLE_ADMIN')")
-                // other request는 전부 허용 & 권한이 없는 페이지는 login페이지로 이동
+                // other request는 전부 허용
                 .anyRequest().permitAll()
                 .and()
+                // 권한이 없는 페이지는 login 페이지로 이동
                 .formLogin()
-                .loginPage("/login-form");
+                .loginPage("/login-form")
+                // "/login" 주소가 호출이 되면 security가 낚아채서 대신 로그인을 잰행
+                .loginProcessingUrl("/login")
+                .defaultSuccessUrl("/");
 
         return httpSecurity.build();
     }
