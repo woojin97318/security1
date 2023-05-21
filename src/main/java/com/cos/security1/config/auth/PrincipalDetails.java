@@ -4,9 +4,11 @@ import com.cos.security1.model.User;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * security가 "/login" 주소 요청이 오면 낚아채서 로그인을 진행시킨다.
@@ -18,13 +20,15 @@ import java.util.Collection;
  * Security Session -> Authentication -> UserDetails = PrincipalDetails
  */
 
-public class PrincipalDetails implements UserDetails {
+public class PrincipalDetails implements UserDetails, OAuth2User {
 
     private User user;
 
     public PrincipalDetails(User user) {
         this.user = user;
     }
+
+    // UserDetails Override
 
     /**
      * 해당 User의 권한을 리턴
@@ -72,5 +76,17 @@ public class PrincipalDetails implements UserDetails {
         // 사이트에서 1년동안 로그인을 안했다 -> 휴먼 계정 처리
         // 현재시간 - 로그인 시간 > 1년 -> false
       return true;
+    }
+
+    // OAuth2User Override
+
+    @Override
+    public Map<String, Object> getAttributes() {
+        return null;
+    }
+
+    @Override
+    public String getName() {
+        return null;
     }
 }

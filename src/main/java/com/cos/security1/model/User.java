@@ -7,8 +7,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import javax.persistence.*;
 import java.sql.Timestamp;
 
-@Entity
 @Getter @Setter
+@Entity
 public class User {
 
     @Id
@@ -27,6 +27,12 @@ public class User {
 
     @Column(name = "role")
     private String role;
+
+    @Column(name = "provider")
+    private String provider;
+
+    @Column(name = "provider_id")
+    private String providerId;
 
     @CreationTimestamp
     @Column(name = "create_date")
