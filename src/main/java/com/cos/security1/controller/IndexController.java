@@ -26,41 +26,39 @@ public class IndexController {
      * 일반 로그인
      */
     @GetMapping("/test/login")
-    public @ResponseBody String testLogin(Authentication authentication,
-                                          @AuthenticationPrincipal PrincipalDetails principalDetails) {
+    public @ResponseBody PrincipalDetails testLogin(Authentication authentication,
+                                                    @AuthenticationPrincipal PrincipalDetails principalDetails) {
         /**
          * 방법 1.
          * param -> Authentication authentication
+         * code > `PrincipalDetails principalDetails = (PrincipalDetails) authentication.getDetails();`
          * authentication.getDetails()을 PrincipalDetails 타입으로 다운캐스팅
-         * PrincipalDetails는 UserDetails를 implements를 받았기 때문에 같은 타입이다.
-         * code
-         * `PrincipalDetails principalDetails = (PrincipalDetails) authentication.getDetails();`
+         * PrincipalDetails는 UserDetails를 implements했기 때문에 같은 타입이다.
          *
          * 방법 2.
          * param -> @AuthenticationPrincipal PrincipalDetails principalDetails
          * @AuthenticationPrincipal 어노테이션을 사용하여 PrincipalDetails 타입으로 직접 받을 수 있다.
          */
-        return "세션 정보 확인";
+        return principalDetails;
     }
 
     /**
      * OAuth2 로그인 인증
      */
-    @GetMapping("/test/oauth2/login")
-    public @ResponseBody String testOAuth2Login(Authentication authentication,
-                                                @AuthenticationPrincipal OAuth2User oAuth2User) {
+    @GetMapping("/test/oauth/login")
+    public @ResponseBody OAuth2User testOAuth2Login(Authentication authentication,
+                                                    @AuthenticationPrincipal OAuth2User oAuth2User) {
         /**
          * 방법 1.
          * param -> Authentication authentication
+         * code > `OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();`
          * authentication.getDetails()을 OAuth2User 타입으로 다운캐스팅
-         * code
-         * `OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();`
          *
          * 방법 2.
          * param -> @AuthenticationPrincipal OAuth2User oAuth2User
          * @AuthenticationPrincipal 어노테이션을 사용하여 OAuth2User 타입으로 직접 받을 수 있다.
          */
-        return "OAuth2 세션 정보 확인";
+        return oAuth2User;
     }
 
     @GetMapping
@@ -69,8 +67,8 @@ public class IndexController {
     }
 
     @GetMapping("/user")
-    public @ResponseBody String user() {
-        return "user";
+    public @ResponseBody User user(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+        return principalDetails.getUser();
     }
 
     @GetMapping("/admin")

@@ -1,7 +1,7 @@
 package com.cos.security1.config.auth;
 
 import com.cos.security1.model.User;
-import org.springframework.security.config.core.GrantedAuthorityDefaults;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -20,16 +20,29 @@ import java.util.Map;
  * Security Session -> Authentication -> UserDetails = PrincipalDetails
  */
 
+@Getter
 public class PrincipalDetails implements UserDetails, OAuth2User {
 
     private User user;
 
+    private Map<String, Object> attributes;
+
+    /**
+     * 일반 로그인 생성자
+     */
     public PrincipalDetails(User user) {
         this.user = user;
     }
 
-    // UserDetails Override
+    /**
+     * OAuth 로그인 생성자
+     */
+    public PrincipalDetails(User user, Map<String, Object> attributes) {
+        this.user = user;
+        this.attributes = attributes;
+    }
 
+    // UserDetails @Override
     /**
      * 해당 User의 권한을 리턴
      */
@@ -78,15 +91,16 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
       return true;
     }
 
-    // OAuth2User Override
+    // OAuth2User @Override
 
     @Override
     public Map<String, Object> getAttributes() {
-        return null;
+        return attributes;
     }
 
     @Override
     public String getName() {
+//        return (String) attributes.get("sub");
         return null;
     }
 }

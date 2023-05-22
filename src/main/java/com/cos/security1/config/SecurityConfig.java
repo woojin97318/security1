@@ -28,35 +28,38 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-        // token을 사용하는 방식이기 때문에 csrf disable
-        httpSecurity.csrf().disable();
+        httpSecurity
+                // token을 사용하는 방식이기 때문에 csrf disable
+                .csrf().disable()
 
-        httpSecurity.authorizeRequests()
-                // 인증이 필요
+                .authorizeRequests()
+                // 인증 || 인증 && 권한 필요
                 .antMatchers("/user/**").authenticated()
-                // 인증 & 권한 필요
                 .antMatchers("/manager/**").access("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
                 .antMatchers("/admin/**").access("hasRole('ROLE_ADMIN')")
-                // other request는 전부 허용
+                // 다른 request는 전부 허용
                 .anyRequest().permitAll()
                 .and()
+
                 // 권한이 없는 페이지는 login 페이지로 이동
                 .formLogin()
                 .loginPage("/login-form")
+
                 // "/login" 주소가 호출이 되면 security가 낚아채서 대신 로그인을 잰행
                 .loginProcessingUrl("/login")
                 .defaultSuccessUrl("/")
                 .and()
+
                 // Oauth2 로그인 또한 같은 "/login-form"으로 설정
                 .oauth2Login()
                 .loginPage("/login-form")
                 /**
                  * 구글 로그인이 완료된 뒤에 후처리가 필요.
-                 * 1. 코드 받기(인증)
-                 * 2. 액세스토큰(권한)
+                 * 1. 코드 받기 (인증)
+                 * 2. 액세스토큰 (권한)
                  * 3. 사용자 프로필 정보 수집
                  * 4-1. 정보를 토대로 자동 회원가입
-                 * 4-2. 이메일, 전화번호, 이름, ID / 쇼핑몰 -> 주소 / 백화점 -> 고객 등급 필요
+                 * 4-2. 이메일, 전화번호, 이름, ID / 쇼핑몰 경우 -> 주소 / 백화점 경우 -> 고객 등급 추가로 필요
                  *
                  * Tip. 구글 로그인 -> 코드x, 액세스토큰 + 사용자 프로필 정보 수집
                  */
