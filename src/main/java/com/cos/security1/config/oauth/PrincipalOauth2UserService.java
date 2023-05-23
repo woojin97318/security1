@@ -1,6 +1,8 @@
 package com.cos.security1.config.oauth;
 
 import com.cos.security1.config.auth.PrincipalDetails;
+import com.cos.security1.config.auth.provider.GoogleUserInfo;
+import com.cos.security1.config.auth.provider.OAuth2UserInfo;
 import com.cos.security1.model.User;
 import com.cos.security1.repository.UserRepository;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -32,16 +34,25 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User oAuth2User = super.loadUser(userRequest);
 
-        String provider = userRequest.getClientRegistration().getRegistrationId(); // google
-        String providerId = (String) oAuth2User.getAttributes().get("sub");
-        String username = provider + "_" + providerId; // "google_12105646546"
-        String password = "무의미 값";
-        String email = (String) oAuth2User.getAttributes().get("email");
+        // OAuth 로그인 + 자동 회원가입 OR 로그인
+        OAuth2UserInfo oAuth2UserInfo = null;
+
+        if (userRequest.getClientRegistration().getRegistrationId().equals("google")) {
+            System.out.println("구글 로그인 Request");
+            oAuth2UserInfo = new GoogleUserInfo(oAuth2User.getAttributes());
+        } else {
+            System.out.println("구글 로그인만을 지원합니다.");
+        }
+
+        String provider = oAuth2UserInfo.getProvider(); // 플랫폼 명
+        String providerId = oAuth2UserInfo.getProviderId(); // 플랫품 id
+        String username = provider + "_" + providerId;
+        String password = "무의미 값"; // 암호화 처리는 할 듯?
+        String email = oAuth2UserInfo.getEmail();
         String role = "ROLE_USER";
 
         User userEntity = userRepository.findByUsername(username);
 
-        // 자동 회원가입 + 로그인 아니면 그냥 로그인
         if (userEntity == null) {
             userEntity = User.builder()
                     .username(username)
@@ -53,6 +64,8 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
                     .build();
 
             userRepository.save(userEntity);
+        } else {
+            System.out.println("이미 회원가입이 되어있습니다. 그러므로 로그인만 진행합니다.");
         }
 
         return new PrincipalDetails(userEntity, oAuth2User.getAttributes());
